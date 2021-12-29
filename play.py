@@ -7,7 +7,7 @@ class AudioFile:
 
     def __init__(self, file):
         """ Init audio stream """ 
-        self.wf = wave.open(file, 'rb')
+        self.wf = wave.open('/home/yanosik2115/Py/Project/SongsWav/' + file, 'rb')
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(
             format = self.p.get_format_from_width(self.wf.getsampwidth()),
