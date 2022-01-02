@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import Frame, Label, Place, filedialog
-from play import AudioFile
+from converter import convertToWav
+from play import threading
 
 root = tk.Tk()
 
@@ -15,31 +16,38 @@ _buttons.place(width=250, height=100, x=0, y=600)
 
 songs = []
 
-
 def showButtons():
     button = []
     for each in song_display.winfo_children():
         each.destroy()
 
     for i in songs:
-         button.append(tk.Button(
-            song_display, text=i, bg="white", command=lambda j=i: AudioFile(i).play()
-        ).pack())
-         print(i)
+        button.append(
+            tk.Button(
+                song_display, text=i, bg="white", command=lambda j=i: threading(i)
+            ).pack()
+        )
+        print(i)
+
 
 def addSong():
     fileName = filedialog.askopenfilename(
-        initialdir="~",
+        initialdir="~/Py/Project/",
         title="Select Song You would like to add",
         filetypes=(("media_player", "*.mp3"), ("all files", "*.*")),
     )
+    if fileName.endswith(".mp3"):
+        fileName = fileName.split("/")[-1]
+        convertToWav(fileName)
+        fileName = fileName.split(".")[0] + ".wav"
+        print(fileName)
+
+    print(fileName)
     songs.append(fileName.split("/")[-1])
     showButtons()
-    
 
-openFile = tk.Button(
-    root, text="Open File", fg="white", bg="#263D42", command=addSong
-)
+
+openFile = tk.Button(root, text="Open File", fg="white", bg="#263D42", command=addSong)
 openFile.pack(side="left")
 
 root.mainloop()
