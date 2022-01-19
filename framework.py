@@ -1,7 +1,9 @@
+import queue
 import tkinter as tk
 from tkinter import Frame, Label, Place, filedialog
 from converter import convertToWav
-from play import threading
+from play import AudioFile, PlayQueue
+from queue import Queue
 
 root = tk.Tk()
 
@@ -17,14 +19,16 @@ _buttons.place(width=250, height=100, x=0, y=600)
 songs = []
 
 def showButtons():
+    
     button = []
     for each in song_display.winfo_children():
-        each.destroy()
-
+        each.destroy() 
+    pq = PlayQueue()
     for i in songs:
+        
         button.append(
             tk.Button(
-                song_display, text=i, bg="white", command=lambda j=i: threading(i)
+                song_display, text=i, bg="white", command=lambda j=i: pq.threading(i)
             ).pack()
         )
         print(i)
