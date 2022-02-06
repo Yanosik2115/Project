@@ -1,15 +1,14 @@
-from fileinput import filename
+from fileinput import filename, nextfile
+from operator import index
 import shutil
 from tkinter import *
 import os
 from tkinter import filedialog
-from matplotlib.pyplot import text
-
 from numpy import place
 import pygame
+from Any2mp3 import Converter
 
 root = Tk()
-
 
 class FrameWork:
     def __init__(self, root) -> None:
@@ -51,17 +50,13 @@ class FrameWork:
         self.track = StringVar()
         self.status = StringVar()
 
-        play_but = Button(self.control_panel, text="PLAY", command=self.test)
-        play_but.place(x=0, y=0)
+        self.play_but = Button(
+            self.control_panel, text="PLAY", command=self.play_stop_but
+        )
+        self.play_but.pack(side=TOP)
 
-        stop_but = Button(self.control_panel, text="STOP", command=self.stop)
-        stop_but.place(x=60, y=0)
-
-        pause_but = Button(self.control_panel, text="PAUSE", command=self.pause)
-        pause_but.place(x=120, y=0)
-
-        unpause_but = Button(self.control_panel, text="UNPAUSE", command=self.unpause)
-        unpause_but.place(x=180, y=0)
+        next_but = Button(self.control_panel, text='>', command=self.next_but)
+        next_but.pack(side=RIGHT)
 
         openFile = Button(
             self.control_panel,
@@ -74,46 +69,50 @@ class FrameWork:
 
         self.show_playlist()
 
-    def play(self):
-        self.track.set(self.playlist.get(ACTIVE))
-        self.status.set("-Playing")
-        pygame.mixer.music.load(self.playlist.get(ACTIVE))
-        pygame.mixer.music.play()
-
-    def stop(self):
-        self.status.set("-Stopped")
-        pygame.mixer.music.stop()
-    
-    def test(self):
-        if not self.track.get():
+    def play_stop_but(self):
+        if not self.status.get():
             self.track.set(self.playlist.get(ACTIVE))
             self.status.set("-Playing")
             pygame.mixer.music.load(self.playlist.get(ACTIVE))
             pygame.mixer.music.play()
-        elif self.status.get() == '-Unpaused' or self.status.get() == '-Playing':
+        elif self.playlist.get(ACTIVE) != self.track.get():
+            self.track.set(self.playlist.get(ACTIVE))
+            self.status.set("-Playing")
+            pygame.mixer.music.load(self.playlist.get(ACTIVE))
+            pygame.mixer.music.play()
+        elif (
+            self.status.get() == "-Playing"
+            and self.playlist.get(ACTIVE) == self.track.get()
+        ):
             self.status.set("-Paused")
             pygame.mixer.music.pause()
-        elif self.status.get() == '-Paused':
+        elif self.status.get() == "-Paused":
             self.status.set("-Playing")
             pygame.mixer.music.unpause()
-        print(self.playlist.get(ACTIVE))
 
+        if self.status.get() == "-Playing":
+            self.play_but.config(text="STOP")
+        else:
+            self.play_but.config(text="PLAY")
 
-
-    def pause(self):
-        self.status.set("-Paused")
-        pygame.mixer.music.pause()
-
-    def unpause(self):
+    def next_but(self):
+        next_song = self.playlist.get(self.playlist.index(ACTIVE) + 1)
+        self.track.set(next_song)
         self.status.set("-Playing")
-        pygame.mixer.music.unpause()
+        self.playlist.activate(self.playlist.index(ACTIVE) + 1)
+        pygame.mixer.music.load(next_song)
+        pygame.mixer.music.play()
+        print(self.playlist.get(ACTIVE))
+        print(self.track.get())
+        #print(self.playlist.index(ACTIVE))
 
     def show_playlist(self):
         self.playlist.delete(0, END)
 
         self.songtrack = os.listdir()
-        for track in self.songtrack:
-            self.playlist.insert(END, track)
+        for num, track in enumerate(self.songtrack):
+            self.playlist.insert(num, track)
+        print(self.playlist.get(0))
 
     def add_song(self):
         fileName = filedialog.askopenfilename(
@@ -126,10 +125,13 @@ class FrameWork:
         )
         src = fileName
         dst = "/home/yanosik2115/Py/Project/Songs/"
-        shutil.copyfile(src, "%s%s" % (dst, src.split("/")[-1]))
+
+        if not fileName.endswith(".mp3"):
+            Converter(fileName)
+        else:
+            shutil.copyfile(src, "%s%s" % (dst, src.split("/")[-1]))
 
         self.show_playlist()
-
 
 FrameWork(root)
 root.mainloop()
