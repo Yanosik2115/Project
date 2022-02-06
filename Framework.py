@@ -53,10 +53,13 @@ class FrameWork:
         self.play_but = Button(
             self.control_panel, text="PLAY", command=self.play_stop_but
         )
-        self.play_but.pack(side=TOP)
+        self.play_but.place(x=95, y=11)
 
-        next_but = Button(self.control_panel, text='>', command=self.next_but)
-        next_but.pack(side=RIGHT)
+        next_but = Button(self.control_panel, text=">", command=self.next_but)
+        next_but.place(x=209,y=12)
+
+        prev_but = Button(self.control_panel, text="<", command=self.prev_but)
+        prev_but.place(x=1, y=12)
 
         openFile = Button(
             self.control_panel,
@@ -102,13 +105,17 @@ class FrameWork:
         self.playlist.activate(self.playlist.index(ACTIVE) + 1)
         pygame.mixer.music.load(next_song)
         pygame.mixer.music.play()
-        print(self.playlist.get(ACTIVE))
-        print(self.track.get())
-        #print(self.playlist.index(ACTIVE))
+
+    def prev_but(self):
+        prev_song = self.playlist.get(self.playlist.index(ACTIVE) - 1)
+        self.track.set(prev_song)
+        self.status.set("-Playing")
+        self.playlist.activate(self.playlist.index(ACTIVE) - 1)
+        pygame.mixer.music.load(prev_song)
+        pygame.mixer.music.play()
 
     def show_playlist(self):
         self.playlist.delete(0, END)
-
         self.songtrack = os.listdir()
         for num, track in enumerate(self.songtrack):
             self.playlist.insert(num, track)
@@ -132,6 +139,7 @@ class FrameWork:
             shutil.copyfile(src, "%s%s" % (dst, src.split("/")[-1]))
 
         self.show_playlist()
+
 
 FrameWork(root)
 root.mainloop()
