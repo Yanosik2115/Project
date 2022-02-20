@@ -4,6 +4,7 @@ import shutil
 from tkinter import *
 import os
 from tkinter import filedialog
+from tkinter.ttk import Progressbar
 from numpy import place
 import pygame
 from Any2mp3 import Converter
@@ -24,7 +25,7 @@ class FrameWork:
         songs_display.place(width=250, height=665, relx=0, rely=0.05)
 
         self.control_panel = LabelFrame(root, bg="green")
-        self.control_panel.place(width=250, height=100, x=0, y=600)
+        self.control_panel.place(width=700, height=100, x=0, y=600)
 
         os.chdir("../Project/Songs")
 
@@ -43,6 +44,10 @@ class FrameWork:
             relief=GROOVE,
         )
 
+        self.bar = Progressbar(self.control_panel, length=700, s='black.Horizontal.TProgressbar')
+        self.bar['value'] = 0
+        self.bar.place(x=0,y=0)
+
         scrol.pack(side=RIGHT, fill=BOTH)
         scrol.config(command=self.playlist.yview)
         self.playlist.pack(fill=BOTH)
@@ -53,13 +58,13 @@ class FrameWork:
         self.play_but = Button(
             self.control_panel, text="PLAY", command=self.play_stop_but
         )
-        self.play_but.place(x=95, y=11)
+        self.play_but.place(x=300, y=25)
 
         next_but = Button(self.control_panel, text=">", command=self.next_but)
-        next_but.place(x=209,y=12)
+        next_but.place(x=390,y=25)
 
         prev_but = Button(self.control_panel, text="<", command=self.prev_but)
-        prev_but.place(x=1, y=12)
+        prev_but.place(x=230, y=25)
 
         openFile = Button(
             self.control_panel,
@@ -71,6 +76,10 @@ class FrameWork:
         openFile.place(x=0, y=67)
 
         self.show_playlist()
+
+    def progress_bar(self):
+        current_song = self.playlist.get(ACTIVE)
+        print(current_song)
 
     def play_stop_but(self):
         if not self.status.get():
@@ -97,6 +106,8 @@ class FrameWork:
             self.play_but.config(text="STOP")
         else:
             self.play_but.config(text="PLAY")
+        
+        
 
     def next_but(self):
         next_song = self.playlist.get(self.playlist.index(ACTIVE) + 1)
@@ -105,6 +116,7 @@ class FrameWork:
         self.playlist.activate(self.playlist.index(ACTIVE) + 1)
         pygame.mixer.music.load(next_song)
         pygame.mixer.music.play()
+        
 
     def prev_but(self):
         prev_song = self.playlist.get(self.playlist.index(ACTIVE) - 1)
@@ -113,6 +125,7 @@ class FrameWork:
         self.playlist.activate(self.playlist.index(ACTIVE) - 1)
         pygame.mixer.music.load(prev_song)
         pygame.mixer.music.play()
+        
 
     def show_playlist(self):
         self.playlist.delete(0, END)
@@ -139,6 +152,9 @@ class FrameWork:
             shutil.copyfile(src, "%s%s" % (dst, src.split("/")[-1]))
 
         self.show_playlist()
+    
+    
+
 
 
 FrameWork(root)
